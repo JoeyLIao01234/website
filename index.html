@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="樂的個人資料網站：醫學系學生、ENFP、熱愛排球、跳舞、音樂、旅行與咖啡廳。">
+	<title>樂｜Personal Field Notes</title>
+	<style>
+		/* 全站基礎設定：以深色背景與高對比文字，建立沉浸式個人檔案的閱讀氛圍。 */
+		:root {
+			--ink: #f5f2ea;
+			--muted: #b6b4ae;
+			--paper: #111314;
+			--line: rgba(245, 242, 234, .2);
+			--accent: #d7ff62;
+			--accent-2: #85d9ff;
+			--display: "Avenir Next", "Helvetica Neue", "Noto Sans TC", sans-serif;
+			--body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+		}
+
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; background: var(--paper); }
+		body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--body); line-height: 1.7; overflow-x: hidden; }
+		a { color: inherit; text-decoration: none; }
+		img { display: block; max-width: 100%; }
+		.wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+		.eyebrow { color: var(--accent); font: 600 11px/1.2 var(--display); letter-spacing: .18em; text-transform: uppercase; }
+
+		/* 導覽列：固定在畫面上方，滾動後增加半透明底色，方便回到不同段落。 */
+		.site-nav { position: fixed; z-index: 20; inset: 0 0 auto; padding: 22px 0; transition: background .3s ease, padding .3s ease; }
+		.site-nav.scrolled { padding: 14px 0; background: rgba(17, 19, 20, .84); backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
+		.nav-inner { display: flex; align-items: center; justify-content: space-between; }
+		.wordmark { font: 700 17px var(--display); letter-spacing: .07em; }
+		.wordmark span { color: var(--accent); }
+		.nav-links { display: flex; gap: 30px; color: var(--muted); font-size: 13px; }
+		.nav-links a { transition: color .2s ease; }
+		.nav-links a:hover { color: var(--ink); }
+		.menu-button { display: none; border: 0; color: var(--ink); background: none; font-size: 22px; cursor: pointer; }
+
+		/* 首屏：照片使用原始檔案，透過漸層遮罩讓標題在照片上保持清晰。 */
+		.hero { min-height: 100svh; position: relative; display: flex; align-items: flex-end; overflow: hidden; background: #222; }
+		.hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 42%; filter: saturate(.78); animation: breathe 16s ease-in-out infinite alternate; }
+		.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10, 12, 12, .75), rgba(10, 12, 12, .08) 65%), linear-gradient(0deg, rgba(10, 12, 12, .9), transparent 55%); }
+		.hero-content { position: relative; z-index: 1; width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 0 0 clamp(58px, 11vh, 132px); }
+		.hero h1 { max-width: 750px; margin: 18px 0 22px; font: 700 clamp(58px, 11vw, 150px)/.93 var(--display); letter-spacing: -.06em; }
+		.hero h1 em { color: var(--accent); font-style: normal; }
+		.hero-lede { max-width: 430px; margin: 0; color: #dedbd2; font-size: clamp(16px, 2vw, 20px); }
+		.scroll-cue { position: absolute; right: 24px; bottom: 42px; z-index: 2; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 11px; letter-spacing: .14em; writing-mode: vertical-rl; }
+		.scroll-cue::after { content: ""; width: 1px; height: 64px; background: var(--accent); }
+
+		/* 個人摘要：用數字與標籤快速交代目前的生活座標。 */
+		.intro { padding: clamp(90px, 15vw, 190px) 0; background: var(--paper); }
+		.intro-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(40px, 10vw, 160px); align-items: start; }
+		.intro h2, .section-title { margin: 0; font: 600 clamp(38px, 5vw, 72px)/1.08 var(--display); letter-spacing: -.05em; }
+		.intro-copy { color: var(--muted); font-size: clamp(18px, 2vw, 24px); max-width: 660px; }
+		.intro-copy strong { color: var(--ink); font-weight: 500; }
+		.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line); }
+		.fact strong { display: block; color: var(--accent); font: 600 clamp(28px, 4vw, 52px)/1 var(--display); letter-spacing: -.05em; }
+		.fact span { display: block; margin-top: 10px; color: var(--muted); font-size: 12px; }
+
+		/* 興趣區：用全寬大字與短句呈現個人動能，讓資訊保持好掃讀。 */
+		.interests { padding: 0 0 clamp(110px, 16vw, 210px); }
+		.section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
+		.section-heading p { max-width: 280px; margin: 0; color: var(--muted); font-size: 13px; }
+		.interest-list { margin: 0; padding: 0; list-style: none; }
+		.interest-list li { display: flex; align-items: baseline; justify-content: space-between; padding: 25px 0 21px; border-bottom: 1px solid var(--line); transition: padding .25s ease, color .25s ease; }
+		.interest-list li:hover { padding-left: 18px; padding-right: 18px; color: var(--accent); }
+		.interest-name { font: 600 clamp(35px, 6vw, 84px)/1 var(--display); letter-spacing: -.06em; }
+		.interest-number { color: var(--muted); font: 12px var(--display); }
+
+		/* 生活照片：使用兩種比例的圖片組合，讓跳舞與咖啡廳成為可視化的生活記憶。 */
+		.moments { padding: 0 0 clamp(110px, 16vw, 210px); }
+		.moment-grid { display: grid; grid-template-columns: 1.35fr .85fr; gap: 18px; margin-top: 40px; align-items: start; }
+		.moment-card { margin: 0; }
+		.moment-card img { width: 100%; height: 520px; object-fit: cover; filter: saturate(.82); transition: filter .35s ease, transform .35s ease; }
+		.moment-card:nth-child(2) img { height: 420px; }
+		.moment-card:hover img { filter: saturate(1); transform: scale(.99); }
+		.moment-card figcaption { display: flex; justify-content: space-between; gap: 16px; padding-top: 13px; color: var(--muted); font-size: 12px; }
+		.moment-card figcaption strong { color: var(--ink); font-weight: 500; }
+
+		/* 結尾聯絡區：以一句開放式問候收束頁面，並保留練習作品註記。 */
+		.closing { min-height: 62svh; display: grid; place-items: center; text-align: center; padding: 100px 0; border-top: 1px solid var(--line); background: radial-gradient(circle at 50% 20%, #26302a, var(--paper) 52%); }
+		.closing h2 { max-width: 800px; margin: 20px auto 34px; font: 600 clamp(42px, 8vw, 108px)/.98 var(--display); letter-spacing: -.06em; }
+		.closing-link { display: inline-flex; align-items: center; gap: 12px; padding: 14px 20px; color: #101212; background: var(--accent); border-radius: 999px; font-size: 13px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
+		.closing-link:hover { transform: translateY(-3px); background: var(--ink); }
+		footer { display: flex; justify-content: space-between; gap: 20px; padding: 22px 0 28px; color: var(--muted); font-size: 11px; }
+
+		/* 捲動淡入：元素進入視窗時才出現，並在使用者偏好減少動畫時停用。 */
+		.reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
+		.reveal.show { opacity: 1; transform: none; }
+		@keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
+		@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal, .hero-photo { opacity: 1; transform: none; transition: none; animation: none; } }
+
+		/* 手機版：收合導覽列並改為單欄排版，確保 375px 寬度沒有橫向捲軸。 */
+		@media (max-width: 680px) {
+			.wrap, .hero-content { width: min(100% - 32px, 1180px); }
+			.nav-links { position: absolute; top: 62px; right: 16px; display: none; flex-direction: column; gap: 0; min-width: 150px; padding: 8px; background: rgba(17, 19, 20, .96); border: 1px solid var(--line); }
+			.nav-links.open { display: flex; }
+			.nav-links a { padding: 10px; }
+			.menu-button { display: block; }
+			.hero-photo { object-position: 58% center; }
+			.scroll-cue { display: none; }
+			.intro-grid { grid-template-columns: 1fr; gap: 34px; }
+			.facts { gap: 10px; margin-top: 38px; }
+			.fact strong { font-size: 30px; }
+			.section-heading { display: block; }
+			.section-heading p { margin-top: 18px; }
+			.interest-name { font-size: 43px; }
+			.moment-grid { grid-template-columns: 1fr; gap: 38px; }
+			.moment-card img, .moment-card:nth-child(2) img { height: 390px; }
+			footer { display: block; }
+			footer span { display: block; margin-top: 8px; }
+		}
+	</style>
+</head>
+<body>
+	<!-- 導覽區：提供頁面內跳轉，手機則由按鈕開啟選單。 -->
+	<header class="site-nav" id="top">
+		<div class="wrap nav-inner">
+			<a class="wordmark" href="#top">LE<span>．</span>樂</a>
+			<nav class="nav-links" id="navLinks" aria-label="主要導覽">
+				<a href="#about">About</a>
+				<a href="#interests">Interests</a>
+				<a href="#moments">Moments</a>
+				<a href="#contact">Say hello</a>
+			</nav>
+			<button class="menu-button" id="menuButton" type="button" aria-label="開啟導覽選單" aria-expanded="false">☰</button>
+		</div>
+	</header>
+
+	<main>
+		<!-- 首屏：照片與一句核心介紹，讓訪客第一眼認識網站主角。 -->
+		<section class="hero" aria-label="樂的個人介紹">
+			<img class="hero-photo" src="IMG_3339.JPG" alt="樂的個人照片">
+			<div class="hero-content reveal">
+				<div class="eyebrow">Personal field notes · 2026</div>
+				<h1>嗨，我是<br><em>樂。</em></h1>
+				<p class="hero-lede">一個正在學習成為醫生，也努力把生活過得有趣的人。</p>
+			</div>
+			<div class="scroll-cue" aria-hidden="true">SCROLL TO EXPLORE</div>
+		</section>
+
+		<!-- 關於我：將 Word 自我介紹整理成較容易閱讀的短段落與三個關鍵資料。 -->
+		<section class="intro" id="about">
+			<div class="wrap intro-grid">
+				<div class="reveal">
+					<div class="eyebrow">01 / About me</div>
+					<h2>保持好奇，<br>也保持開朗。</h2>
+				</div>
+				<div class="reveal">
+					<p class="intro-copy">大家好，我叫<strong>樂</strong>，目前就讀<strong>中國醫藥大學醫學系二年級</strong>，畢業於建國中學和中正國中。</p>
+					<p class="intro-copy">我的個性外向開朗，喜歡和大家聊天，也喜歡<strong>跳舞</strong>、去咖啡廳，很高興認識你們！</p>
+					<div class="facts" aria-label="個人資料摘要">
+						<div class="fact"><strong>ENFP</strong><span>MBTI personality</span></div>
+						<div class="fact"><strong>02</strong><span>Year of medical school</span></div>
+						<div class="fact"><strong>∞</strong><span>Curiosity level</span></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 興趣清單：把自我介紹中提到的休閒活動化成有節奏的視覺列表。 -->
+		<section class="interests" id="interests">
+			<div class="wrap">
+				<div class="section-heading reveal">
+					<div><div class="eyebrow">02 / What moves me</div><h2 class="section-title">我的生活切片</h2></div>
+					<p>課本之外，還有很多讓日子發光的小事。</p>
+				</div>
+				<ol class="interest-list">
+					<li class="reveal"><span class="interest-name">排球</span><span class="interest-number">01 / PLAY</span></li>
+					<li class="reveal"><span class="interest-name">電玩</span><span class="interest-number">02 / PLAY</span></li>
+					<li class="reveal"><span class="interest-name">音樂</span><span class="interest-number">03 / LISTEN</span></li>
+					<li class="reveal"><span class="interest-name">旅行</span><span class="interest-number">04 / GO</span></li>
+					<li class="reveal"><span class="interest-name">跳舞</span><span class="interest-number">05 / MOVE</span></li>
+					<li class="reveal"><span class="interest-name">咖啡廳</span><span class="interest-number">06 / PAUSE</span></li>
+				</ol>
+			</div>
+		</section>
+
+		<!-- 生活照片：展示跳舞與咖啡廳照片，補充文字以外的個人性格與日常。 -->
+		<section class="moments" id="moments">
+			<div class="wrap">
+				<div class="section-heading reveal">
+					<div><div class="eyebrow">03 / Little moments</div><h2 class="section-title">生活有節拍，<br>也有香氣。</h2></div>
+					<p>在喜歡的事情裡，留下屬於自己的節奏。</p>
+				</div>
+				<div class="moment-grid">
+					<figure class="moment-card reveal">
+						<img src="IMG_5636.JPG" alt="樂跳舞時的照片" loading="lazy">
+						<figcaption><strong>跳舞 / Move with joy</strong><span>01</span></figcaption>
+					</figure>
+					<figure class="moment-card reveal">
+						<img src="IMG_6788.JPG" alt="樂在咖啡廳拍攝的照片" loading="lazy">
+						<figcaption><strong>咖啡廳 / Take a pause</strong><span>02</span></figcaption>
+					</figure>
+				</div>
+			</div>
+		</section>
+
+		<!-- 收尾區：以簡短問候結束，維持個人網站的親切感。 -->
+		<section class="closing" id="contact">
+			<div class="wrap reveal">
+				<div class="eyebrow">04 / Nice to meet you</div>
+				<h2>很高興認識你，<br>下次聊。</h2>
+				<a class="closing-link" href="#top">Back to top <span aria-hidden="true">↗</span></a>
+			</div>
+		</section>
+	</main>
+
+	<!-- 頁尾：依規則保留課堂練習作品說明，不使用虛構公司資訊。 -->
+	<footer class="wrap">
+		<span>© 2026 樂的個人資料網站</span>
+		<span>本網站為課堂練習作品，內容來自本人提供的資料。</span>
+	</footer>
+
+	<script>
+		// 導覽列滾動後轉為半透明實心樣式，讓文字在內容上方仍清楚可見。
+		const nav = document.querySelector('.site-nav');
+		addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40), { passive: true });
+
+		// 手機版選單：點擊按鈕開關，選擇連結後自動收合。
+		const menuButton = document.querySelector('#menuButton');
+		const navLinks = document.querySelector('#navLinks');
+		menuButton.addEventListener('click', () => {
+			const isOpen = navLinks.classList.toggle('open');
+			menuButton.setAttribute('aria-expanded', String(isOpen));
+		});
+		navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+			navLinks.classList.remove('open');
+			menuButton.setAttribute('aria-expanded', 'false');
+		}));
+
+		// IntersectionObserver：元素進入畫面約 15% 時淡入，避免一次載入所有內容造成視覺負擔。
+		const observer = new IntersectionObserver(entries => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('show');
+					observer.unobserve(entry.target);
+				}
+			});
+		}, { threshold: .15 });
+		document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+	</script>
+</body>
+</html>
